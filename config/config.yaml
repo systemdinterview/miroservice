@@ -1,0 +1,27 @@
+spring:
+  cache:
+    cache-names:
+    - rate-limit-buckets
+    caffeine:
+      spec: maximumSize=100000,expireAfterAccess=3600s
+      
+bucket4j:
+  enabled: true
+  filters:
+  - cache-name: rate-limit-buckets
+    strategy: first  
+    url: /api/.*
+    rate-limits:
+    - bandwidths:
+      - capacity: 1000
+        time: 1
+        unit: minutes
+  - cache-name: rate-limit-buckets
+    url: /api/widget/?
+    rate-limits:
+    - expression: getRemoteAddr()   
+      execute-condition: "getMethod().equals('GET')"    
+      bandwidths:
+      - capacity: 200
+        time: 1
+        unit: minutes
